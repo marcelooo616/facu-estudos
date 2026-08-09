@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-canvas: #0B0F19;
+    --bg-card: #111827;
+    --bg-card-alt: #0F172A;
+    --border-sleek: #1E293B;
+    --accent-blue: #3B82F6;
+    --accent-blue-hover: #2563EB;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-secondary);
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Utilitários do Sleek Design System Pro */
+.sleek-card {
+  background-color: #111827;
+  border: 1px solid rgba(30, 41, 59, 0.7);
+  border-radius: 1rem; /* rounded-2xl */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.sleek-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.input-sleek {
+  background-color: #0F172A;
+  border: 1px solid #1E293B;
+  color: #F8FAFC;
+  transition: all 0.15s ease-in-out;
+}
+
+.input-sleek:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.input-sleek::placeholder {
+  color: #64748B;
+}
+
+.btn-sleek-primary {
+  background-color: #3B82F6;
+  color: #ffffff;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.btn-sleek-primary:hover {
+  background-color: #2563EB;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.btn-sleek-secondary {
+  background-color: #1E293B;
+  border: 1px solid #334155;
+  color: #CBD5E1;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-sleek-secondary:hover {
+  background-color: #334155;
+  color: #F8FAFC;
+  border-color: #475569;
+}
+
+.badge-sleek-blue {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #60A5FA;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* Animações suaves */
+@keyframes sleekIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-sleek-in {
+  animation: sleekIn 0.25s ease-out forwards;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0F19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3B82F6;
 }

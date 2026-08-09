@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Usuario {
+  id                    String                  @id @default(uuid())
+  nome                  String
+  email                 String                  @unique
+  senhaHash             String
+  criadoEm              DateTime                @default(now())
+  materias              Materia[]
+  unidades              Unidade[]
+  videos                Video[]
+  atividades            Atividade[]
+  configuracaoCronograma ConfiguracaoCronograma?
+}
+
+model Materia {
+  id        String    @id @default(uuid())
+  usuarioId String
+  nome      String
+  semestre  String
+  descricao String
+  codigo    String?
+  criadoEm  DateTime  @default(now())
+
+  usuario  Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  unidades Unidade[]
+
+  @@index([usuarioId])
+}
+
+model Unidade {
+  id         String   @id @default(uuid())
+  usuarioId  String
+  materiaId  String
+  titulo     String
+  dataInicio String
+  dataFim    String
+  criadoEm   DateTime @default(now())
+
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  materia    Materia   @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  videos     Video[]
+  atividades Atividade[]
+
+  @@index([usuarioId])
+  @@index([materiaId])
+}
+
+model Video {
+  id             String   @id @default(uuid())
+  usuarioId      String
+  unidadeId      String
+  titulo         String
+  url            String?
+  duracaoMinutos Int?
+  assistido      Boolean  @default(false)
+  tipoConteudo   String   @default("video")
+  criadoEm       DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  unidade Unidade @relation(fields: [unidadeId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([unidadeId])
+}
+
+model Atividade {
+  id        String   @id @default(uuid())
+  usuarioId String
+  unidadeId String
+  titulo    String
+  descricao String
+  concluida Boolean  @default(false)
+  criadoEm  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  unidade Unidade @relation(fields: [unidadeId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([unidadeId])
+}
+
+model ConfiguracaoCronograma {
+  id             String @id @default(uuid())
+  usuarioId      String @unique
+  diasSemana     String @default("[1,2,3,4,5]")
+  materiasPorDia String @default("auto")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
