@@ -8,6 +8,5 @@ export default defineConfig({
   },
   datasource: {
     url: process.env.PRISMA_DATABASE_URL,
-    directUrl: process.env.POSTGRES_URL,
   },
 });
