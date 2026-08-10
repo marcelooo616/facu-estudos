@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model Usuario {
@@ -41,6 +41,7 @@ model Unidade {
   titulo     String
   dataInicio String
   dataFim    String
+  concluida  Boolean  @default(false)
   criadoEm   DateTime @default(now())
 
   usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)

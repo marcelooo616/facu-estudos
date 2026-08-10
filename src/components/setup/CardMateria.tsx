@@ -28,16 +28,16 @@ export const CardMateria: React.FC<CardMateriaProps> = ({
   };
 
   return (
-    <div className="sleek-card p-5 space-y-4 animate-sleek-in">
+    <div className="card-tetris card-tetris-purple p-5 space-y-4 animate-tetris-drop">
       {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center space-x-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono badge-sleek-blue font-semibold">
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold badge-tetris-purple">
               {materia.semestre}
             </span>
             {materia.codigo && (
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono bg-[#0F172A] border border-[#1E293B] text-slate-400">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0B1120] border border-[#1E293B] text-slate-400">
                 {materia.codigo}
               </span>
             )}
@@ -48,7 +48,7 @@ export const CardMateria: React.FC<CardMateriaProps> = ({
 
         <button
           onClick={() => aoExcluirMateria(materia.id)}
-          className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-[#0F172A] rounded-lg transition-colors cursor-pointer"
+          className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-[#0B1120] rounded-lg transition-colors cursor-pointer"
           title="Excluir Matéria"
         >
           <Trash2 className="w-4 h-4" />
@@ -59,20 +59,20 @@ export const CardMateria: React.FC<CardMateriaProps> = ({
       <div className="space-y-2 pt-3 border-t border-[#1E293B]">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <span className="text-xs font-mono text-slate-400 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-[#3B82F6]" />
+            <Layers className="w-3.5 h-3.5 text-[#06B6D4]" />
             Unidades ({unidadesDaMateria.length})
           </span>
           <div className="flex items-center space-x-1.5">
             <button
               onClick={() => aoAbrirCriadorManual(materia.id)}
-              className="btn-sleek-secondary flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg cursor-pointer font-mono"
+              className="btn-tetris-secondary flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg cursor-pointer font-mono"
             >
-              <Plus className="w-3 h-3 text-[#3B82F6]" />
+              <Plus className="w-3 h-3 text-[#06B6D4]" />
               <span>Manual</span>
             </button>
             <button
               onClick={() => aoAbrirGerador(materia.id)}
-              className="btn-sleek-primary flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg cursor-pointer"
+              className="btn-tetris-primary flex items-center space-x-1 text-xs px-2.5 py-1 rounded-lg cursor-pointer"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Em Lote</span>
@@ -85,10 +85,10 @@ export const CardMateria: React.FC<CardMateriaProps> = ({
             {unidadesDaMateria.map((uni) => (
               <div
                 key={uni.id}
-                className="flex items-center justify-between bg-[#0F172A] p-2.5 rounded-lg border border-[#1E293B] text-xs text-slate-300 group hover:border-[#3B82F6] transition-colors"
+                className="flex items-center justify-between bg-[#0B1120] p-2.5 rounded-lg border border-[#1E293B] text-xs text-slate-300 group hover:border-[#06B6D4] transition-colors"
               >
                 <div className="flex items-center space-x-2 truncate">
-                  <BookOpen className="w-3.5 h-3.5 text-[#3B82F6] flex-shrink-0" />
+                  <BookOpen className="w-3.5 h-3.5 text-[#06B6D4] flex-shrink-0" />
                   <span className="truncate font-medium">{uni.titulo}</span>
                 </div>
                 <div className="flex items-center space-x-3 flex-shrink-0">

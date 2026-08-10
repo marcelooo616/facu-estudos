@@ -12,6 +12,7 @@ export interface Unidade {
   titulo: string;
   dataInicio: string; // Formato YYYY-MM-DD
   dataFim: string; // Formato YYYY-MM-DD
+  concluida?: boolean;
 }
 
 export type TipoConteudoMaterial = 'video' | 'leitura' | 'exercicio' | 'outro';
@@ -36,12 +37,17 @@ export interface Atividade {
 
 export type AbaNavegacao = 'dashboard' | 'setup' | 'foco' | 'cronograma';
 
+export type StatusCorUnidade = 'vermelho' | 'amarelo' | 'verde';
+
 export interface UnidadeComDetalhes extends Unidade {
   materiaNome: string;
   materiaSemestre: string;
   totalVideos: number;
+  videosAssistidos: number;
   totalAtividades: number;
   atividadesConcluidas: number;
+  percentualConclusao: number;
+  statusCor: StatusCorUnidade;
   statusAtiva: boolean;
 }
 
@@ -64,9 +70,19 @@ export interface ItemMetaEstudo {
   tipoConteudo?: TipoConteudoMaterial;
 }
 
+export interface MateriaAgendadaDiaria {
+  materiaId: string;
+  materiaNome: string;
+  unidadeId: string;
+  unidadeTitulo: string;
+  totalItensPendentes: number;
+  dataFimUnidade: string;
+}
+
 export interface MetaEstudoDiario {
   data: string; // YYYY-MM-DD
   diaSemanaNome: string;
   isHoje: boolean;
+  materiasAgendadas: MateriaAgendadaDiaria[];
   itens: ItemMetaEstudo[];
 }

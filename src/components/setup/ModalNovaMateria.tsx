@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, BookOpen } from 'lucide-react';
+import { X, BookOpen, PlusCircle } from 'lucide-react';
 
 interface ModalNovaMateriaProps {
   estaAberto: boolean;
@@ -13,90 +13,100 @@ export const ModalNovaMateria: React.FC<ModalNovaMateriaProps> = ({
   aoSalvar
 }) => {
   const [nome, setNome] = useState('');
-  const [semestre, setSemestre] = useState('2026.1');
-  const [codigo, setCodigo] = useState('');
+  const [semestre, setSemestre] = useState('1º Semestre');
   const [descricao, setDescricao] = useState('');
+  const [codigo, setCodigo] = useState('');
 
   if (!estaAberto) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nome.trim()) return;
+    if (!nome.trim() || !descricao.trim()) return;
     aoSalvar({
       nome: nome.trim(),
-      semestre: semestre.trim(),
-      codigo: codigo.trim() || undefined,
-      descricao: descricao.trim()
+      semestre,
+      descricao: descricao.trim(),
+      codigo: codigo.trim() || undefined
     });
     setNome('');
-    setCodigo('');
     setDescricao('');
+    setCodigo('');
     aoFechar();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-sleek-in">
-      <div className="w-full max-w-md bg-[#111827] rounded-xl p-6 border border-[#1E293B] shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-tetris-drop">
+      <div className="w-full max-w-md card-tetris card-tetris-purple p-6 shadow-2xl relative">
         <button
           onClick={aoFechar}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#1F2937] transition-colors"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#1E293B] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center space-x-2 mb-1">
-          <BookOpen className="w-5 h-5 text-[#3B82F6]" />
-          <h3 className="text-lg font-bold text-white">Cadastrar Nova Matéria</h3>
+          <BookOpen className="w-5 h-5 text-[#A855F7]" />
+          <h3 className="text-lg font-bold text-white font-mono">Cadastrar Nova Disciplina</h3>
         </div>
-        <p className="text-xs text-zinc-400 mb-5">
-          Adicione uma disciplina para organizar unidades e cronogramas.
+        <p className="text-xs text-slate-400 mb-5 font-mono">
+          Preencha os dados da matéria para adicioná-la à sua grade do semestre.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 font-mono">
           <div>
-            <label className="block text-xs font-mono text-zinc-300 mb-1">Nome da Matéria *</label>
+            <label className="block text-xs text-slate-300 mb-1">Nome da Matéria *</label>
             <input
               type="text"
               required
-              placeholder="Ex: Banco de Dados Relacionais"
+              placeholder="Ex: Algoritmos e Estrutura de Dados"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="w-full input-sleek px-3 py-2 text-sm rounded-lg"
+              className="w-full input-tetris px-3 py-2 text-sm rounded-lg"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-mono text-zinc-300 mb-1">Semestre *</label>
-              <input
-                type="text"
-                required
-                placeholder="2026.1"
+              <label className="block text-xs text-slate-300 mb-1">Semestre *</label>
+              <select
                 value={semestre}
                 onChange={(e) => setSemestre(e.target.value)}
-                className="w-full input-sleek px-3 py-2 text-sm rounded-lg font-mono"
-              />
+                className="w-full input-tetris px-3 py-2 text-sm rounded-lg text-slate-200"
+              >
+                <option value="1º Semestre">1º Semestre</option>
+                <option value="2º Semestre">2º Semestre</option>
+                <option value="3º Semestre">3º Semestre</option>
+                <option value="4º Semestre">4º Semestre</option>
+                <option value="5º Semestre">5º Semestre</option>
+                <option value="6º Semestre">6º Semestre</option>
+                <option value="7º Semestre">7º Semestre</option>
+                <option value="8º Semestre">8º Semestre</option>
+              </select>
             </div>
+
             <div>
-              <label className="block text-xs font-mono text-zinc-300 mb-1">Código (Opcional)</label>
+              <label className="block text-xs text-slate-300 mb-1">
+                Código <span className="text-slate-500">(Opcional)</span>
+              </label>
               <input
                 type="text"
-                placeholder="COMP204"
+                placeholder="Ex: MAT101"
                 value={codigo}
                 onChange={(e) => setCodigo(e.target.value)}
-                className="w-full input-sleek px-3 py-2 text-sm rounded-lg font-mono"
+                className="w-full input-tetris px-3 py-2 text-sm rounded-lg"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-zinc-300 mb-1">Descrição</label>
+            <label className="block text-xs text-slate-300 mb-1">Ementa / Descrição *</label>
             <textarea
+              required
               rows={3}
-              placeholder="Resumo do programa da matéria..."
+              placeholder="Descreva brevemente os temas principais da disciplina..."
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
-              className="w-full input-sleek px-3 py-2 text-sm rounded-lg resize-none"
+              className="w-full input-tetris px-3 py-2 text-sm rounded-lg"
             />
           </div>
 
@@ -104,15 +114,15 @@ export const ModalNovaMateria: React.FC<ModalNovaMateriaProps> = ({
             <button
               type="button"
               onClick={aoFechar}
-              className="btn-sleek-secondary px-4 py-2 text-xs font-semibold cursor-pointer"
+              className="btn-tetris-secondary px-4 py-2 text-xs font-semibold cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="btn-sleek-primary px-4 py-2 text-xs font-semibold cursor-pointer"
+              className="btn-tetris-purple px-4 py-2 text-xs font-semibold cursor-pointer"
             >
-              Criar Matéria
+              Salvar Matéria
             </button>
           </div>
         </form>

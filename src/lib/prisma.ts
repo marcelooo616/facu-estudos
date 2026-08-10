@@ -1,19 +1,16 @@
 import { PrismaClient } from '@prisma/client';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-
-// Puxa a URL do banco que configuramos no .env
-const connectionString = process.env.PRISMA_DATABASE_URL || process.env.POSTGRES_URL;
-
-// Cria o adaptador do Postgres
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Injeta o adaptador obrigatório da v7 dentro do PrismaClient
+const dbPath = process.env.DATABASE_URL
+  ? process.env.DATABASE_URL.replace(/^file:/, '')
+  : './dev.db';
+
+const adapter = new PrismaBetterSqlite3({ url: dbPath });
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Materia, Unidade, Video, Atividade, UnidadeComDetalhes, TipoConteudoMaterial } from '@/lib/types';
+import { Materia, Unidade, Video, Atividade, UnidadeComDetalhes, TipoConteudoMaterial, StatusCorUnidade, ConfiguracaoCronograma } from '@/lib/types';
 import { estudosService } from '@/lib/estudosService';
 
 export function useEstudos() {
@@ -8,6 +8,29 @@ export function useEstudos() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [atividades, setAtividades] = useState<Atividade[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
+  const [configuracaoCronograma, setConfiguracaoCronograma] = useState<ConfiguracaoCronograma>({
+    diasSemana: [1, 2, 3, 4, 5],
+    materiasPorDia: 'auto',
+    incluirConcluidas: false
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('facu_cronograma_config');
+      if (raw) {
+        try {
+          setConfiguracaoCronograma(JSON.parse(raw));
+        } catch (e) {}
+      }
+    }
+  }, []);
+
+  const salvarConfiguracaoCronograma = (novaConfig: ConfiguracaoCronograma) => {
+    setConfiguracaoCronograma(novaConfig);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('facu_cronograma_config', JSON.stringify(novaConfig));
+    }
+  };
 
   const carregarDados = useCallback(async () => {
     setCarregando(true);
@@ -34,26 +57,43 @@ export function useEstudos() {
     carregarDados();
   }, [carregarDados]);
 
-  // Obter Unidades ativas em uma data (default: hoje)
+  // Obter unidades com vigência na data informada
   const obterUnidadesAtivas = useCallback(
-    (dataRefStr?: string): UnidadeComDetalhes[] => {
-      const hojeStr = dataRefStr || new Date().toISOString().split('T')[0];
-
+    (dataFiltroStr: string): UnidadeComDetalhes[] => {
       return unidades
-        .filter((uni) => uni.dataInicio <= hojeStr && uni.dataFim >= hojeStr)
+        .filter((u) => u.dataInicio <= dataFiltroStr && u.dataFim >= dataFiltroStr)
         .map((uni) => {
           const materia = materias.find((m) => m.id === uni.materiaId);
           const vids = videos.filter((v) => v.unidadeId === uni.id);
+          const vidsAssistidos = vids.filter((v) => v.assistido).length;
           const ativs = atividades.filter((a) => a.unidadeId === uni.id);
-          const concluidas = ativs.filter((a) => a.concluida).length;
+          const ativsConcluidas = ativs.filter((a) => a.concluida).length;
+
+          const totalItens = vids.length + ativs.length;
+          const itensConcluidos = vidsAssistidos + ativsConcluidas;
+          const percentualConclusao = uni.concluida
+            ? 100
+            : totalItens > 0
+            ? Math.round((itensConcluidos / totalItens) * 100)
+            : 0;
+
+          let statusCor: StatusCorUnidade = 'vermelho';
+          if (percentualConclusao >= 100 || uni.concluida) {
+            statusCor = 'verde';
+          } else if (percentualConclusao >= 50) {
+            statusCor = 'amarelo';
+          }
 
           return {
             ...uni,
             materiaNome: materia ? materia.nome : 'Matéria Não Encontrada',
             materiaSemestre: materia ? materia.semestre : '',
             totalVideos: vids.length,
+            videosAssistidos: vidsAssistidos,
             totalAtividades: ativs.length,
-            atividadesConcluidas: concluidas,
+            atividadesConcluidas: ativsConcluidas,
+            percentualConclusao,
+            statusCor,
             statusAtiva: true
           };
         });
@@ -69,8 +109,24 @@ export function useEstudos() {
 
       const materia = materias.find((m) => m.id === uni.materiaId);
       const vids = videos.filter((v) => v.unidadeId === uni.id);
+      const vidsAssistidos = vids.filter((v) => v.assistido).length;
       const ativs = atividades.filter((a) => a.unidadeId === uni.id);
-      const concluidas = ativs.filter((a) => a.concluida).length;
+      const ativsConcluidas = ativs.filter((a) => a.concluida).length;
+
+      const totalItens = vids.length + ativs.length;
+      const itensConcluidos = vidsAssistidos + ativsConcluidas;
+      const percentualConclusao = uni.concluida
+        ? 100
+        : totalItens > 0
+        ? Math.round((itensConcluidos / totalItens) * 100)
+        : 0;
+
+      let statusCor: StatusCorUnidade = 'vermelho';
+      if (percentualConclusao >= 100 || uni.concluida) {
+        statusCor = 'verde';
+      } else if (percentualConclusao >= 50) {
+        statusCor = 'amarelo';
+      }
 
       const hojeStr = new Date().toISOString().split('T')[0];
       const ativa = uni.dataInicio <= hojeStr && uni.dataFim >= hojeStr;
@@ -80,8 +136,11 @@ export function useEstudos() {
         materiaNome: materia ? materia.nome : 'Matéria Não Encontrada',
         materiaSemestre: materia ? materia.semestre : '',
         totalVideos: vids.length,
+        videosAssistidos: vidsAssistidos,
         totalAtividades: ativs.length,
-        atividadesConcluidas: concluidas,
+        atividadesConcluidas: ativsConcluidas,
+        percentualConclusao,
+        statusCor,
         statusAtiva: ativa
       };
     },
@@ -116,6 +175,11 @@ export function useEstudos() {
 
   const removerUnidade = async (id: string) => {
     await estudosService.excluirUnidade(id);
+    await carregarDados();
+  };
+
+  const alternarUnidadeConcluida = async (id: string) => {
+    await estudosService.alternarUnidadeConcluida(id);
     await carregarDados();
   };
 
@@ -168,6 +232,8 @@ export function useEstudos() {
     videos,
     atividades,
     carregando,
+    configuracaoCronograma,
+    salvarConfiguracaoCronograma,
     obterUnidadesAtivas,
     obterDetalhesUnidade,
     adicionarMateria,
@@ -175,6 +241,7 @@ export function useEstudos() {
     adicionarUnidade,
     gerarMultiplasUnidades,
     removerUnidade,
+    alternarUnidadeConcluida,
     adicionarVideo,
     editarVideo,
     alternarVideoAssistido,

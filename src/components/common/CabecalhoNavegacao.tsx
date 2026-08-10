@@ -1,157 +1,114 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AbaNavegacao } from '@/lib/types';
-import { Usuario } from '@/hooks/useAuth';
-import { ModalAutenticacao } from '../auth/ModalAutenticacao';
-import { LayoutDashboard, Settings, Target, CalendarDays, RefreshCw, Zap, User, LogOut, LogIn } from 'lucide-react';
+import { LayoutDashboard, Settings, Target, Calendar, Gamepad2, LogOut, User } from 'lucide-react';
 
 interface CabecalhoNavegacaoProps {
   abaAtiva: AbaNavegacao;
   aoMudarAba: (aba: AbaNavegacao) => void;
-  unidadeSelecionadaId: string | null;
-  aoResetarDados: () => void;
-  usuario: Usuario | null;
-  aoRegistrar: (nome: string, email: string, senha: string) => Promise<void>;
-  aoFazerLogin: (email: string, senha: string) => Promise<void>;
-  aoFazerLogout: () => void;
+  usuarioNome?: string;
+  aoFazerLogout?: () => void;
 }
 
 export const CabecalhoNavegacao: React.FC<CabecalhoNavegacaoProps> = ({
   abaAtiva,
   aoMudarAba,
-  unidadeSelecionadaId,
-  aoResetarDados,
-  usuario,
-  aoRegistrar,
-  aoFazerLogin,
+  usuarioNome,
   aoFazerLogout
 }) => {
-  const [modalAuthAberto, setModalAuthAberto] = useState(false);
+  const abas: { id: AbaNavegacao; rotulo: string; icone: any; corActive: string }[] = [
+    { id: 'dashboard', rotulo: 'Dashboard', icone: LayoutDashboard, corActive: 'btn-tetris-primary' },
+    { id: 'setup', rotulo: 'Setup Matérias', icone: Settings, corActive: 'btn-tetris-purple' },
+    { id: 'foco', rotulo: 'Área de Foco', icone: Target, corActive: 'btn-tetris-purple' },
+    { id: 'cronograma', rotulo: 'Cronograma', icone: Calendar, corActive: 'btn-tetris-green' }
+  ];
 
   return (
-    <>
-      <header className="sticky top-0 z-40 w-full border-b border-[#1E293B] bg-[#090D16]/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo & Marca Sleek */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-[#111827] border border-[#1E293B] flex items-center justify-center text-[#3B82F6]">
-                <Zap className="w-4 h-4 text-[#3B82F6]" />
-              </div>
-              <div>
-                <span className="text-base font-bold tracking-tight text-white flex items-center gap-2">
-                  FACU<span className="text-[10px] px-1.5 py-0.5 rounded font-mono badge-sleek-blue font-semibold">SLEEK</span>
-                </span>
-                <p className="text-[10px] text-zinc-400 hidden sm:block font-mono">
-                  {usuario ? `Ambiente Privado de ${usuario.nome}` : 'Minimalist Academic Workspace'}
-                </p>
-              </div>
+    <header className="sticky top-0 z-40 bg-[#080C14]/90 backdrop-blur-md border-b-2 border-[#1E293B] shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo Arcade Style */}
+          <div
+            onClick={() => aoMudarAba('dashboard')}
+            className="flex items-center space-x-2.5 cursor-pointer group"
+          >
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#06B6D4] via-[#A855F7] to-[#EC4899] flex items-center justify-center border-2 border-slate-900 shadow-[2px_2px_0px_#000] group-hover:scale-105 transition-transform">
+              <Gamepad2 className="w-5 h-5 text-white" />
             </div>
-
-            {/* Navegação de Abas Sleek */}
-            <nav className="flex items-center space-x-1 bg-[#111827] p-1.5 rounded-xl border border-[#1E293B]">
-              <button
-                onClick={() => aoMudarAba('dashboard')}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  abaAtiva === 'dashboard'
-                    ? 'bg-[#3B82F6] text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#1F2937]'
-                }`}
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                <span>Visão Geral</span>
-              </button>
-
-              <button
-                onClick={() => aoMudarAba('cronograma')}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  abaAtiva === 'cronograma'
-                    ? 'bg-[#3B82F6] text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#1F2937]'
-                }`}
-              >
-                <CalendarDays className="w-3.5 h-3.5" />
-                <span>Cronograma</span>
-              </button>
-
-              <button
-                onClick={() => aoMudarAba('setup')}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  abaAtiva === 'setup'
-                    ? 'bg-[#3B82F6] text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#1F2937]'
-                }`}
-              >
-                <Settings className="w-3.5 h-3.5" />
-                <span>Setup Matérias</span>
-              </button>
-
-              <button
-                onClick={() => aoMudarAba('foco')}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  abaAtiva === 'foco'
-                    ? 'bg-[#3B82F6] text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#1F2937]'
-                }`}
-              >
-                <Target className="w-3.5 h-3.5" />
-                <span>Área de Foco</span>
-                {unidadeSelecionadaId && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                )}
-              </button>
-            </nav>
-
-            {/* Painel do Usuário / Login / Mocks */}
-            <div className="flex items-center space-x-2">
-              {usuario ? (
-                <div className="flex items-center space-x-2 bg-[#111827] p-1.5 rounded-xl border border-[#1E293B]">
-                  <div className="flex items-center space-x-2 px-2">
-                    <div className="w-6 h-6 rounded-full bg-[#3B82F6] text-white flex items-center justify-center text-xs font-bold font-mono">
-                      {usuario.nome.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-xs text-zinc-200 font-semibold max-w-[100px] truncate hidden md:inline">
-                      {usuario.nome}
-                    </span>
-                  </div>
-                  <button
-                    onClick={aoFazerLogout}
-                    title="Sair da Conta"
-                    className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-[#1F2937] rounded-lg transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setModalAuthAberto(true)}
-                  className="btn-sleek-primary flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer"
-                >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Entrar / Cadastrar</span>
-                </button>
-              )}
-
-              {!usuario && (
-                <button
-                  onClick={aoResetarDados}
-                  title="Restaurar dados de demonstração local"
-                  className="btn-sleek-secondary flex items-center space-x-1.5 px-2.5 py-1.5 text-xs cursor-pointer font-mono"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-zinc-400" />
-                  <span className="hidden lg:inline text-[11px]">Mocks</span>
-                </button>
-              )}
+            <div>
+              <span className="font-extrabold text-base tracking-wider text-white font-mono flex items-center gap-1">
+                FACU<span className="text-[#06B6D4]">.SPA</span>
+              </span>
+              <p className="text-[9px] font-mono text-slate-400 tracking-widest uppercase">
+                Academic Tetris Grid
+              </p>
             </div>
           </div>
-        </div>
-      </header>
 
-      <ModalAutenticacao
-        estaAberto={modalAuthAberto}
-        aoFechar={() => setModalAuthAberto(false)}
-        aoRegistrar={aoRegistrar}
-        aoFazerLogin={aoFazerLogin}
-      />
-    </>
+          {/* Abas Estilo Arcade Buttons */}
+          <nav className="hidden md:flex items-center space-x-2 bg-[#0F172A] p-1.5 rounded-xl border-2 border-[#1E293B]">
+            {abas.map((aba) => {
+              const IconeComponente = aba.icone;
+              const ativa = abaAtiva === aba.id;
+
+              return (
+                <button
+                  key={aba.id}
+                  onClick={() => aoMudarAba(aba.id)}
+                  className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    ativa
+                      ? `${aba.corActive}`
+                      : 'text-slate-400 hover:text-white hover:bg-[#1E293B]'
+                  }`}
+                >
+                  <IconeComponente className="w-4 h-4" />
+                  <span>{aba.rotulo}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Perfil e Logout */}
+          <div className="flex items-center space-x-3">
+            {usuarioNome && (
+              <div className="hidden sm:flex items-center space-x-2 bg-[#0F172A] px-3 py-1.5 rounded-xl border-2 border-[#1E293B] text-xs font-mono">
+                <User className="w-3.5 h-3.5 text-[#06B6D4]" />
+                <span className="text-slate-200 font-semibold">{usuarioNome}</span>
+              </div>
+            )}
+
+            {aoFazerLogout && (
+              <button
+                onClick={aoFazerLogout}
+                className="btn-tetris-secondary p-2 rounded-xl text-slate-400 hover:text-red-400 cursor-pointer"
+                title="Sair da Conta"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Navegação Mobile */}
+        <div className="md:hidden flex items-center justify-around py-2 border-t border-[#1E293B]">
+          {abas.map((aba) => {
+            const IconeComponente = aba.icone;
+            const ativa = abaAtiva === aba.id;
+
+            return (
+              <button
+                key={aba.id}
+                onClick={() => aoMudarAba(aba.id)}
+                className={`flex flex-col items-center space-y-1 py-1 px-2.5 rounded-lg text-[10px] font-mono ${
+                  ativa ? 'text-[#06B6D4] font-bold' : 'text-slate-400'
+                }`}
+              >
+                <IconeComponente className="w-4 h-4" />
+                <span>{aba.rotulo}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </header>
   );
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { Materia, Unidade, Video, Atividade } from '@/lib/types';
 import { EstadoVazio } from '../common/EstadoVazio';
 import { BarraProgresso } from '../common/BarraProgresso';
-import { Calendar, Video as VideoIcon, CheckSquare, ArrowRight, ArrowLeft, Plus, Layers } from 'lucide-react';
+import { Calendar, Video as VideoIcon, CheckSquare, ArrowRight, ArrowLeft, Plus, Layers, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 
 interface ListaUnidadesMateriaProps {
   materia: Materia;
@@ -32,12 +32,37 @@ export const ListaUnidadesMateria: React.FC<ListaUnidadesMateriaProps> = ({
     return `${dia}/${mes}/${ano}`;
   };
 
+  const renderStatusColorBadge = (percentual: number, concluida?: boolean) => {
+    if (percentual >= 100 || concluida) {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/80 flex items-center gap-1">
+          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+          <span>🟢 100%</span>
+        </span>
+      );
+    }
+    if (percentual >= 50) {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80 flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3 text-amber-400" />
+          <span>🟡 {percentual}%</span>
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-400 border border-red-800/80 flex items-center gap-1">
+        <AlertCircle className="w-3 h-3 text-red-400" />
+        <span>🔴 {percentual}%</span>
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-6 animate-sleek-in">
       {/* Navegação Breadcrumb & Botão Voltar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1E293B] pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono text-zinc-400 mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono text-slate-400 mb-1">
             <button
               onClick={aoVoltarParaMaterias}
               className="hover:text-[#3B82F6] transition-colors cursor-pointer"
@@ -53,8 +78,8 @@ export const ListaUnidadesMateria: React.FC<ListaUnidadesMateriaProps> = ({
               {materia.semestre}
             </span>
           </h2>
-          <p className="text-xs text-zinc-400 mt-1">
-            Selecione uma unidade para acessar vídeo-aulas e a checklist de entregas.
+          <p className="text-xs text-slate-400 mt-1">
+            Selecione uma unidade para acessar vídeo-aulas, materiais de leitura e a checklist de tarefas.
           </p>
         </div>
 
@@ -82,9 +107,19 @@ export const ListaUnidadesMateria: React.FC<ListaUnidadesMateriaProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {unidadesDaMateria.map((uni) => {
             const vids = videos.filter((v) => v.unidadeId === uni.id);
+            const vidsAssistidos = vids.filter((v) => v.assistido).length;
             const ativs = atividades.filter((a) => a.unidadeId === uni.id);
-            const concluidas = ativs.filter((a) => a.concluida).length;
-            const percentual = ativs.length > 0 ? (concluidas / ativs.length) * 100 : 0;
+            const ativsConcluidas = ativs.filter((a) => a.concluida).length;
+
+            const totalItens = vids.length + ativs.length;
+            const itensConcluidos = vidsAssistidos + ativsConcluidas;
+
+            const percentual = uni.concluida
+              ? 100
+              : totalItens > 0
+              ? Math.round((itensConcluidos / totalItens) * 100)
+              : 0;
+
             const ativaHoje = uni.dataInicio <= hojeStr && uni.dataFim >= hojeStr;
 
             return (
@@ -98,29 +133,34 @@ export const ListaUnidadesMateria: React.FC<ListaUnidadesMateriaProps> = ({
                     <span className="text-xs font-bold text-white group-hover:text-[#3B82F6] transition-colors line-clamp-1">
                       {uni.titulo}
                     </span>
-                    {ativaHoje && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/80 border border-emerald-800 text-emerald-400 font-semibold flex-shrink-0">
-                        Ativa Hoje
-                      </span>
-                    )}
+                    <div className="flex items-center space-x-1.5 flex-shrink-0">
+                      {renderStatusColorBadge(percentual, uni.concluida)}
+                      {ativaHoje && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/80 border border-emerald-800 text-emerald-400 font-semibold">
+                          Ativa
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex items-center space-x-2 text-xs text-zinc-300 mb-4 bg-[#0F172A] p-2 rounded-lg border border-[#1E293B] font-mono">
+                  <div className="flex items-center space-x-2 text-xs text-slate-300 mb-4 bg-[#0F172A] p-2 rounded-lg border border-[#1E293B] font-mono">
                     <Calendar className="w-3.5 h-3.5 text-[#3B82F6]" />
                     <span>
                       {formatarData(uni.dataInicio)} — {formatarData(uni.dataFim)}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs text-zinc-400 mb-4 font-mono">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-4 font-mono">
                     <div className="flex items-center space-x-1.5 bg-[#0D131F] p-2 rounded-lg border border-[#1E293B]">
                       <VideoIcon className="w-3.5 h-3.5 text-[#3B82F6]" />
-                      <span>{vids.length} Vídeo(s)</span>
+                      <span>
+                        {vidsAssistidos}/{vids.length} Vídeos
+                      </span>
                     </div>
                     <div className="flex items-center space-x-1.5 bg-[#0D131F] p-2 rounded-lg border border-[#1E293B]">
-                      <CheckSquare className="w-3.5 h-3.5 text-[#3B82F6]" />
+                      <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
                       <span>
-                        {concluidas}/{ativs.length} Tasks
+                        {ativsConcluidas}/{ativs.length} Tasks
                       </span>
                     </div>
                   </div>

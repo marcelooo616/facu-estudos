@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
-import { X, LogIn, UserPlus, ShieldCheck, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { Gamepad2, X, Lock, Mail, User, Sparkles } from 'lucide-react';
 
 interface ModalAutenticacaoProps {
   estaAberto: boolean;
+  modoInicial?: 'login' | 'registrar';
   aoFechar: () => void;
-  aoRegistrar: (nome: string, email: string, senha: string) => Promise<void>;
-  aoFazerLogin: (email: string, senha: string) => Promise<void>;
+  aoFazerLogin: (email: string, senha: string) => Promise<boolean>;
+  aoRegistrar: (nome: string, email: string, senha: string) => Promise<boolean>;
 }
 
 export const ModalAutenticacao: React.FC<ModalAutenticacaoProps> = ({
   estaAberto,
+  modoInicial = 'login',
   aoFechar,
-  aoRegistrar,
-  aoFazerLogin
+  aoFazerLogin,
+  aoRegistrar
 }) => {
-  const [modo, setModo] = useState<'login' | 'registro'>('login');
+  const [modo, setModo] = useState<'login' | 'registrar'>(modoInicial);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState(false);
 
   if (!estaAberto) return null;
 
@@ -29,150 +31,155 @@ export const ModalAutenticacao: React.FC<ModalAutenticacaoProps> = ({
     setCarregando(true);
 
     try {
+      let sucesso = false;
       if (modo === 'login') {
-        await aoFazerLogin(email, senha);
+        sucesso = await aoFazerLogin(email, senha);
       } else {
         if (!nome.trim()) {
           setErro('Por favor, informe seu nome.');
           setCarregando(false);
           return;
         }
-        await aoRegistrar(nome, email, senha);
+        sucesso = await aoRegistrar(nome, email, senha);
       }
-      setNome('');
-      setEmail('');
-      setSenha('');
-      aoFechar();
-    } catch (err: any) {
-      setErro(err.message || 'Erro ao processar solicitação.');
+
+      if (sucesso) {
+        aoFechar();
+      } else {
+        setErro(modo === 'login' ? 'E-mail ou senha incorretos.' : 'Erro ao criar conta. E-mail pode já estar em uso.');
+      }
+    } catch (err) {
+      setErro('Ocorreu um erro ao conectar ao servidor.');
     } finally {
       setCarregando(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-sleek-in">
-      <div className="w-full max-w-md bg-[#111827] rounded-2xl p-6 border border-[#1E293B] shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-tetris-drop">
+      <div className="w-full max-w-md card-tetris card-tetris-purple p-6 shadow-2xl relative">
         <button
           onClick={aoFechar}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#1F2937] transition-colors"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#1E293B] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Abas Login / Cadastro */}
-        <div className="flex items-center space-x-2 bg-[#0F172A] p-1 rounded-xl border border-[#1E293B] mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setModo('login');
-              setErro(null);
-            }}
-            className={`flex-1 flex items-center justify-center space-x-2 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              modo === 'login' ? 'bg-[#3B82F6] text-white shadow-sm' : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <LogIn className="w-4 h-4" />
-            <span>Entrar na Conta</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setModo('registro');
-              setErro(null);
-            }}
-            className={`flex-1 flex items-center justify-center space-x-2 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              modo === 'registro' ? 'bg-[#3B82F6] text-white shadow-sm' : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Criar Nova Conta</span>
-          </button>
-        </div>
-
-        <div className="mb-4">
-          <h3 className="text-lg font-bold text-white">
-            {modo === 'login' ? 'Acesse seu Ambiente de Estudos' : 'Cadastre-se na Plataforma FACU'}
+        <div className="flex items-center space-x-2.5 mb-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#06B6D4] to-[#A855F7] flex items-center justify-center border border-slate-800">
+            <Gamepad2 className="w-4 h-4 text-white" />
+          </div>
+          <h3 className="text-xl font-black text-white font-mono tracking-tight">
+            {modo === 'login' ? 'Acessar Conta' : 'Criar Conta de Estudante'}
           </h3>
-          <p className="text-xs text-zinc-400 mt-1">
-            {modo === 'login'
-              ? 'Seus dados e cronogramas sincronizados na nuvem em ambiente 100% isolado.'
-              : 'Crie seu ambiente privado com matérias, unidades e tarefas organizadas.'}
-          </p>
         </div>
+        <p className="text-xs text-slate-400 mb-6 font-mono">
+          {modo === 'login'
+            ? 'Entre para acessar seu ambiente universitário e cronograma.'
+            : 'Cadastre-se para obter um workspace exclusivo para suas matérias.'}
+        </p>
 
         {erro && (
-          <div className="p-3 bg-red-950/60 border border-red-800 text-red-300 text-xs rounded-lg mb-4 font-mono">
+          <div className="mb-4 p-3 bg-red-950/80 border border-red-800 rounded-lg text-xs font-mono text-red-300">
             {erro}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {modo === 'registro' && (
+        <form onSubmit={handleSubmit} className="space-y-4 font-mono">
+          {modo === 'registrar' && (
             <div>
-              <label className="block text-xs font-mono text-zinc-300 mb-1">Nome Completo *</label>
+              <label className="block text-xs text-slate-300 mb-1">Nome Completo *</label>
               <div className="relative">
+                <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                 <input
                   type="text"
                   required
                   placeholder="Seu Nome"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className="w-full input-sleek pl-9 pr-3 py-2 text-sm rounded-lg"
+                  className="w-full input-tetris pl-9 pr-3 py-2 text-sm rounded-lg"
                 />
-                <UserIcon className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-mono text-zinc-300 mb-1">E-mail Universitário / Pessoal *</label>
+            <label className="block text-xs text-slate-300 mb-1">E-mail Acadêmico ou Pessoal *</label>
             <div className="relative">
+              <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type="email"
                 required
-                placeholder="aluno@facu.edu.br"
+                placeholder="seu.email@exemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full input-sleek pl-9 pr-3 py-2 text-sm rounded-lg font-mono"
+                className="w-full input-tetris pl-9 pr-3 py-2 text-sm rounded-lg"
               />
-              <Mail className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-zinc-300 mb-1">Senha de Acesso *</label>
+            <label className="block text-xs text-slate-300 mb-1">Senha de Acesso *</label>
             <div className="relative">
+              <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
               <input
                 type="password"
                 required
-                minLength={6}
                 placeholder="••••••••"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                className="w-full input-sleek pl-9 pr-3 py-2 text-sm rounded-lg font-mono"
+                className="w-full input-tetris pl-9 pr-3 py-2 text-sm rounded-lg"
               />
-              <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
             </div>
           </div>
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={carregando}
-              className="w-full btn-sleek-primary py-2.5 px-4 text-xs font-semibold rounded-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>
-                {carregando
-                  ? 'Aguarde...'
-                  : modo === 'login'
-                  ? 'Entrar no Sistema'
-                  : 'Criar Minha Conta Grátis'}
-              </span>
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={carregando}
+            className="w-full btn-tetris-purple py-2.5 px-4 text-xs font-bold rounded-xl flex items-center justify-center space-x-2 cursor-pointer mt-4"
+          >
+            {carregando ? (
+              <span>Conectando...</span>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>{modo === 'login' ? 'Entrar no Workspace' : 'Criar Minha Conta'}</span>
+              </>
+            )}
+          </button>
         </form>
+
+        <div className="mt-5 pt-4 border-t border-[#1E293B] text-center font-mono text-xs">
+          {modo === 'login' ? (
+            <p className="text-slate-400">
+              Ainda não tem conta?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setErro(null);
+                  setModo('registrar');
+                }}
+                className="text-[#06B6D4] hover:underline font-bold"
+              >
+                Cadastre-se grátis
+              </button>
+            </p>
+          ) : (
+            <p className="text-slate-400">
+              Já possui conta?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setErro(null);
+                  setModo('login');
+                }}
+                className="text-[#06B6D4] hover:underline font-bold"
+              >
+                Faça Login
+              </button>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

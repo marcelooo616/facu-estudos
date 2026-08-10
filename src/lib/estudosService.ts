@@ -201,6 +201,32 @@ class EstudosService {
     }
   }
 
+  public async alternarUnidadeConcluida(id: string): Promise<Unidade | null> {
+    const unidades = await this.obterUnidades();
+    const unidadeExistente = unidades.find((u) => u.id === id);
+    if (!unidadeExistente) return null;
+
+    const novoStatus = !unidadeExistente.concluida;
+
+    if (this.temToken()) {
+      const res = await fetch('/api/unidades', {
+        method: 'PUT',
+        headers: this.obterHeadersAuth(),
+        body: JSON.stringify({ id, concluida: novoStatus })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.unidade;
+      }
+    }
+
+    unidadeExistente.concluida = novoStatus;
+    if (this.isBrowser()) {
+      localStorage.setItem(CHAVE_STORAGE_UNIDADES, JSON.stringify(unidades));
+    }
+    return unidadeExistente;
+  }
+
   // VÍDEOS
   public async obterVideos(): Promise<Video[]> {
     if (this.temToken()) {

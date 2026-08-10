@@ -34,18 +34,18 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
   const materiaSelecionadaManual = materias.find((m) => m.id === materiaIdParaUnidadeManual);
 
   return (
-    <div className="space-y-8 animate-sleek-in">
+    <div className="space-y-8 animate-tetris-drop">
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
         <div>
           <div className="flex items-center space-x-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono badge-sleek-blue font-semibold flex items-center gap-1">
-              <Zap className="w-3 h-3 text-[#3B82F6]" /> SETUP DO SEMESTRE
+            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono badge-tetris-purple font-bold flex items-center gap-1">
+              <Zap className="w-3 h-3 text-[#A855F7]" /> SETUP DO SEMESTRE
             </span>
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
             Configuração de Disciplinas
-            <Settings className="w-5 h-5 text-[#3B82F6]" />
+            <Settings className="w-5 h-5 text-[#A855F7]" />
           </h1>
           <p className="text-sm text-slate-400 mt-1">
             Cadastre matérias e crie cronogramas manualmente ou em lote.
@@ -54,7 +54,7 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
 
         <button
           onClick={() => setModalMateriaAberto(true)}
-          className="btn-sleek-primary flex items-center justify-center space-x-2 px-4 py-2.5 text-xs rounded-xl cursor-pointer self-start md:self-auto"
+          className="btn-tetris-purple flex items-center justify-center space-x-2 px-4 py-2.5 text-xs rounded-xl cursor-pointer self-start md:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nova Matéria</span>
@@ -93,7 +93,7 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
         aoSalvar={aoCriarMateria}
       />
 
-      {/* Modal Criador Manual de Unidade (Centralizado no nível raiz da visão) */}
+      {/* Modal Criador Manual de Unidade */}
       <ModalNovaUnidade
         estaAberto={!!materiaIdParaUnidadeManual}
         materiaNome={materiaSelecionadaManual?.nome}

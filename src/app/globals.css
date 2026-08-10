@@ -2,125 +2,261 @@
 
 @layer base {
   :root {
-    --bg-canvas: #0B0F19;
-    --bg-card: #111827;
-    --bg-card-alt: #0F172A;
-    --border-sleek: #1E293B;
-    --accent-blue: #3B82F6;
-    --accent-blue-hover: #2563EB;
-    --text-primary: #F8FAFC;
-    --text-secondary: #CBD5E1;
-    --text-muted: #94A3B8;
+    --tetris-bg: #070B12;
+    --tetris-card: #0F172A;
+    --tetris-card-hover: #1E293B;
+    --tetris-cyan: #06B6D4;
+    --tetris-yellow: #FACC15;
+    --tetris-purple: #A855F7;
+    --tetris-green: #22C55E;
+    --tetris-red: #EF4444;
+    --tetris-orange: #F97316;
+    --tetris-blue: #3B82F6;
   }
 
   body {
-    background-color: var(--bg-canvas);
-    color: var(--text-secondary);
-    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--tetris-bg);
+    color: #F8FAFC;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+    background-image: 
+      radial-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+      radial-gradient(rgba(168, 85, 247, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 14px;
+    min-height: 100vh;
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary);
-  }
 }
 
-/* Utilitários do Sleek Design System Pro */
-.sleek-card {
-  background-color: #111827;
-  border: 1px solid rgba(30, 41, 59, 0.7);
-  border-radius: 1rem; /* rounded-2xl */
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-}
-
-.sleek-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
-}
-
-.input-sleek {
+/* Ergonomic Modern Card Container */
+.card-tetris {
   background-color: #0F172A;
+  border: 1px solid #1E293B;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.card-tetris:hover {
+  border-color: #334155;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* Accent Card Variations with Soft Glow */
+.card-tetris-cyan {
+  border-color: rgba(6, 182, 212, 0.3);
+}
+.card-tetris-cyan:hover {
+  border-color: #06B6D4;
+  box-shadow: 0 8px 24px -4px rgba(6, 182, 212, 0.15);
+}
+
+.card-tetris-purple {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+.card-tetris-purple:hover {
+  border-color: #A855F7;
+  box-shadow: 0 8px 24px -4px rgba(168, 85, 247, 0.15);
+}
+
+.card-tetris-yellow {
+  border-color: rgba(250, 204, 21, 0.3);
+}
+.card-tetris-yellow:hover {
+  border-color: #FACC15;
+  box-shadow: 0 8px 24px -4px rgba(250, 204, 21, 0.15);
+}
+
+.card-tetris-red {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.card-tetris-red:hover {
+  border-color: #EF4444;
+  box-shadow: 0 8px 24px -4px rgba(239, 68, 68, 0.15);
+}
+
+/* Ergonomic Modern Buttons */
+.btn-tetris-primary {
+  background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+  color: #FFFFFF;
+  border: 1px solid #0891B2;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-tetris-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35);
+}
+
+.btn-tetris-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(6, 182, 212, 0.2);
+}
+
+.btn-tetris-purple {
+  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
+  color: #FFFFFF;
+  border: 1px solid #6D28D9;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-tetris-purple:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(168, 85, 247, 0.35);
+}
+
+.btn-tetris-purple:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.2);
+}
+
+.btn-tetris-green {
+  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  color: #FFFFFF;
+  border: 1px solid #15803D;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-tetris-green:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.35);
+}
+
+.btn-tetris-green:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
+}
+
+.btn-tetris-secondary {
+  background-color: #1E293B;
+  color: #CBD5E1;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-tetris-secondary:hover {
+  background-color: #334155;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-tetris-secondary:active {
+  transform: translateY(1px);
+}
+
+/* Inputs Ergonomicos */
+.input-tetris {
+  background-color: #0B1120;
   border: 1px solid #1E293B;
   color: #F8FAFC;
   transition: all 0.15s ease-in-out;
 }
 
-.input-sleek:focus {
+.input-tetris:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: #06B6D4;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
-.input-sleek::placeholder {
-  color: #64748B;
+/* Badges Ergonomicas */
+.badge-tetris-cyan {
+  background-color: rgba(6, 182, 212, 0.12);
+  color: #22D3EE;
+  border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
-.btn-sleek-primary {
-  background-color: #3B82F6;
-  color: #ffffff;
-  font-weight: 600;
-  transition: all 0.15s ease-in-out;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+.badge-tetris-yellow {
+  background-color: rgba(250, 204, 21, 0.12);
+  color: #FACC15;
+  border: 1px solid rgba(250, 204, 21, 0.3);
 }
 
-.btn-sleek-primary:hover {
-  background-color: #2563EB;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+.badge-tetris-purple {
+  background-color: rgba(168, 85, 247, 0.12);
+  color: #C084FC;
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.btn-sleek-secondary {
-  background-color: #1E293B;
-  border: 1px solid #334155;
-  color: #CBD5E1;
-  transition: all 0.15s ease-in-out;
+.badge-tetris-green {
+  background-color: rgba(34, 197, 94, 0.12);
+  color: #4ADE80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.btn-sleek-secondary:hover {
-  background-color: #334155;
-  color: #F8FAFC;
-  border-color: #475569;
+.badge-tetris-red {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.badge-sleek-blue {
-  background-color: rgba(59, 130, 246, 0.12);
-  color: #60A5FA;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+.badge-tetris-orange {
+  background-color: rgba(249, 115, 22, 0.12);
+  color: #FB923C;
+  border: 1px solid rgba(249, 115, 22, 0.3);
 }
 
-/* Animações suaves */
-@keyframes sleekIn {
-  from {
+/* Animação Suave */
+@keyframes tetris-drop {
+  0% {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(-8px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.animate-sleek-in {
-  animation: sleekIn 0.25s ease-out forwards;
+.animate-tetris-drop {
+  animation: tetris-drop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* Barra de Progresso com Blocos Arredondados Suaves */
+.tetris-block-grid {
+  display: flex;
+  gap: 4px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
-  background: #0B0F19;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1E293B;
+.tetris-block-cell {
+  flex: 1;
   border-radius: 4px;
+  background-color: #1E293B;
+  transition: all 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3B82F6;
+.tetris-block-cell.active-cyan {
+  background-color: #06B6D4;
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.5);
+}
+
+.tetris-block-cell.active-yellow {
+  background-color: #FACC15;
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.5);
+}
+
+.tetris-block-cell.active-green {
+  background-color: #22C55E;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+.tetris-block-cell.active-red {
+  background-color: #EF4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
 }
