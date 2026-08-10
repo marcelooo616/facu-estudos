@@ -3,6 +3,7 @@ import { Materia, Unidade } from '@/lib/types';
 import { CardMateria } from './CardMateria';
 import { ModalNovaMateria } from './ModalNovaMateria';
 import { ModalGerarUnidades } from './ModalGerarUnidades';
+import { ModalNovaUnidade } from './ModalNovaUnidade';
 import { EstadoVazio } from '../common/EstadoVazio';
 import { BookOpen, Plus, Settings, Zap } from 'lucide-react';
 
@@ -27,8 +28,10 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
 }) => {
   const [modalMateriaAberto, setModalMateriaAberto] = useState(false);
   const [materiaIdParaGerador, setMateriaIdParaGerador] = useState<string | null>(null);
+  const [materiaIdParaUnidadeManual, setMateriaIdParaUnidadeManual] = useState<string | null>(null);
 
-  const materiaSelecionada = materias.find((m) => m.id === materiaIdParaGerador);
+  const materiaSelecionadaGerador = materias.find((m) => m.id === materiaIdParaGerador);
+  const materiaSelecionadaManual = materias.find((m) => m.id === materiaIdParaUnidadeManual);
 
   return (
     <div className="space-y-8 animate-sleek-in">
@@ -44,7 +47,7 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
             Configuração de Disciplinas
             <Settings className="w-5 h-5 text-[#3B82F6]" />
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Cadastre matérias e crie cronogramas manualmente ou em lote.
           </p>
         </div>
@@ -67,7 +70,7 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
               materia={materia}
               unidades={unidades}
               aoAbrirGerador={(id) => setMateriaIdParaGerador(id)}
-              aoCriarUnidadeManual={aoCriarUnidadeManual}
+              aoAbrirCriadorManual={(id) => setMateriaIdParaUnidadeManual(id)}
               aoExcluirMateria={aoExcluirMateria}
               aoExcluirUnidade={aoExcluirUnidade}
             />
@@ -90,10 +93,23 @@ export const SetupMateriaView: React.FC<SetupMateriaViewProps> = ({
         aoSalvar={aoCriarMateria}
       />
 
-      {/* Modal Gerador de Unidades */}
+      {/* Modal Criador Manual de Unidade (Centralizado no nível raiz da visão) */}
+      <ModalNovaUnidade
+        estaAberto={!!materiaIdParaUnidadeManual}
+        materiaNome={materiaSelecionadaManual?.nome}
+        aoFechar={() => setMateriaIdParaUnidadeManual(null)}
+        aoSalvar={(dados) => {
+          if (materiaIdParaUnidadeManual) {
+            aoCriarUnidadeManual({ ...dados, materiaId: materiaIdParaUnidadeManual });
+            setMateriaIdParaUnidadeManual(null);
+          }
+        }}
+      />
+
+      {/* Modal Gerador de Unidades em Lote */}
       <ModalGerarUnidades
         estaAberto={!!materiaIdParaGerador}
-        materiaNome={materiaSelecionada?.nome}
+        materiaNome={materiaSelecionadaGerador?.nome}
         aoFechar={() => setMateriaIdParaGerador(null)}
         aoGerar={(qtd, inicio, dias) => {
           if (materiaIdParaGerador) {
