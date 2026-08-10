@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { obterUsuarioAutenticado } from '@/lib/auth';
 
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(req: Request) {
   const payload = await obterUsuarioAutenticado(req);
   if (!payload) return NextResponse.json({ mensagem: 'Não autorizado.' }, { status: 401 });
