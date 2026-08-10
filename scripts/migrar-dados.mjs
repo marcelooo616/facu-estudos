@@ -50,68 +50,85 @@ async function migrar() {
     console.log(` - ${videos.length} vídeo(s)/leitura(s)`);
     console.log(` - ${atividades.length} atividade(s)\n`);
 
-    // 2. Inserir Usuários
+    const mapaIdsUsuario = new Map();
+
+    // 2. Inserir/Atualizar Usuários
     for (const u of usuarios) {
       const dataCriacao = u.criadoEm ? new Date(u.criadoEm) : new Date();
-      await client.query(
-        `INSERT INTO "Usuario" ("id", "nome", "email", "senhaHash", "criadoEm")
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT ("id") DO UPDATE SET "nome" = EXCLUDED."nome", "senhaHash" = EXCLUDED."senhaHash"`,
-        [u.id, u.nome, u.email, u.senhaHash, dataCriacao]
-      );
+      const checagem = await client.query('SELECT "id" FROM "Usuario" WHERE "email" = $1 OR "id" = $2', [u.email, u.id]);
+      
+      let pgUsuarioId = u.id;
+      if (checagem.rows.length > 0) {
+        pgUsuarioId = checagem.rows[0].id;
+        await client.query(
+          `UPDATE "Usuario" SET "nome" = $1, "senhaHash" = $2 WHERE "id" = $3`,
+          [u.nome, u.senhaHash, pgUsuarioId]
+        );
+      } else {
+        await client.query(
+          `INSERT INTO "Usuario" ("id", "nome", "email", "senhaHash", "criadoEm") VALUES ($1, $2, $3, $4, $5)`,
+          [u.id, u.nome, u.email, u.senhaHash, dataCriacao]
+        );
+      }
+      mapaIdsUsuario.set(u.id, pgUsuarioId);
     }
 
     // 3. Inserir Configurações
     for (const c of configs) {
+      const pgUser = mapaIdsUsuario.get(c.usuarioId) || c.usuarioId;
       await client.query(
         `INSERT INTO "ConfiguracaoCronograma" ("id", "usuarioId", "diasSemana", "materiasPorDia")
          VALUES ($1, $2, $3, $4)
-         ON CONFLICT ("id") DO NOTHING`,
-        [c.id, c.usuarioId, c.diasSemana, c.materiasPorDia]
+         ON CONFLICT ("usuarioId") DO UPDATE SET "diasSemana" = EXCLUDED."diasSemana", "materiasPorDia" = EXCLUDED."materiasPorDia"`,
+        [c.id, pgUser, c.diasSemana, c.materiasPorDia]
       );
     }
 
     // 4. Inserir Matérias
     for (const m of materias) {
       const dataCriacao = m.criadoEm ? new Date(m.criadoEm) : new Date();
+      const pgUser = mapaIdsUsuario.get(m.usuarioId) || m.usuarioId;
       await client.query(
         `INSERT INTO "Materia" ("id", "usuarioId", "nome", "semestre", "descricao", "codigo", "criadoEm")
          VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT ("id") DO NOTHING`,
-        [m.id, m.usuarioId, m.nome, m.semestre, m.descricao, m.codigo || null, dataCriacao]
+         ON CONFLICT ("id") DO UPDATE SET "nome" = EXCLUDED."nome", "semestre" = EXCLUDED."semestre", "descricao" = EXCLUDED."descricao"`,
+        [m.id, pgUser, m.nome, m.semestre, m.descricao, m.codigo || null, dataCriacao]
       );
     }
 
     // 5. Inserir Unidades
     for (const uni of unidades) {
       const dataCriacao = uni.criadoEm ? new Date(uni.criadoEm) : new Date();
+      const pgUser = mapaIdsUsuario.get(uni.usuarioId) || uni.usuarioId;
       await client.query(
         `INSERT INTO "Unidade" ("id", "usuarioId", "materiaId", "titulo", "dataInicio", "dataFim", "concluida", "criadoEm")
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT ("id") DO NOTHING`,
-        [uni.id, uni.usuarioId, uni.materiaId, uni.titulo, uni.dataInicio, uni.dataFim, Boolean(uni.concluida), dataCriacao]
+         ON CONFLICT ("id") DO UPDATE SET "titulo" = EXCLUDED."titulo", "dataInicio" = EXCLUDED."dataInicio", "dataFim" = EXCLUDED."dataFim", "concluida" = EXCLUDED."concluida"`,
+        [uni.id, pgUser, uni.materiaId, uni.titulo, uni.dataInicio, uni.dataFim, Boolean(uni.concluida), dataCriacao]
       );
     }
 
     // 6. Inserir Vídeos
     for (const v of videos) {
       const dataCriacao = v.criadoEm ? new Date(v.criadoEm) : new Date();
+      const pgUser = mapaIdsUsuario.get(v.usuarioId) || v.usuarioId;
       await client.query(
         `INSERT INTO "Video" ("id", "usuarioId", "unidadeId", "titulo", "url", "duracaoMinutos", "assistido", "tipoConteudo", "criadoEm")
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         ON CONFLICT ("id") DO NOTHING`,
-        [v.id, v.usuarioId, v.unidadeId, v.titulo, v.url || null, v.duracaoMinutos || null, Boolean(v.assistido), v.tipoConteudo || 'video', dataCriacao]
+         ON CONFLICT ("id") DO UPDATE SET "titulo" = EXCLUDED."titulo", "url" = EXCLUDED."url", "assistido" = EXCLUDED."assistido", "tipoConteudo" = EXCLUDED."tipoConteudo"`,
+        [v.id, pgUser, v.unidadeId, v.titulo, v.url || null, v.duracaoMinutos || null, Boolean(v.assistido), v.tipoConteudo || 'video', dataCriacao]
       );
     }
 
     // 7. Inserir Atividades
     for (const a of atividades) {
       const dataCriacao = a.criadoEm ? new Date(a.criadoEm) : new Date();
+      const pgUser = mapaIdsUsuario.get(a.usuarioId) || a.usuarioId;
       await client.query(
         `INSERT INTO "Atividade" ("id", "usuarioId", "unidadeId", "titulo", "descricao", "concluida", "criadoEm")
          VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT ("id") DO NOTHING`,
-        [a.id, a.usuarioId, a.unidadeId, a.titulo, a.descricao, Boolean(a.concluida), dataCriacao]
+         ON CONFLICT ("id") DO UPDATE SET "titulo" = EXCLUDED."titulo", "descricao" = EXCLUDED."descricao", "concluida" = EXCLUDED."concluida"`,
+        [a.id, pgUser, a.unidadeId, a.titulo, a.descricao, Boolean(a.concluida), dataCriacao]
       );
     }
 

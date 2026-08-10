@@ -13,7 +13,11 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function obterPrismaClient() {
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({
+    connectionString,
+    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false }
+  });
+
   const adapter = new PrismaPg(pool);
   return new PrismaClient({
     adapter,
